@@ -5,8 +5,6 @@
     <!-- Load the latest version of TensorFlow.js -->
     <script src="js/tfjs.js"></script>
     <script src="js/mobilenet.js"></script>
-
-
     <title>Mobilenet</title>
 </head>
 <body>
@@ -21,23 +19,23 @@
 
     async function app() {
         console.log('Loading mobilenet..');
-        document.getElementById('info').innerText = 'modle is loading';
+        document.getElementById('info').innerText = '模型正在下载请耐心等待！';
         // Load the model.
         net = await mobilenet.load({
             version: 1,
             modelUrl: "model/model.json"
         });
         console.log('Successfully loaded model');
-        document.getElementById('info').innerText = 'modle is loaded'
+        document.getElementById('info').innerText = '模型已下载成功！'
 
         // Create an object from Tensorflow.js data API which could capture image
         // from the web camera as Tensor.
-        var webcamConfig = {
+        let webcamConfig = {
             facingMode:'environment'
         }
         let deviceId = navigator.mediaDevices.enumerateDevices();
         console.log(deviceId);
-        const webcam = await tf.data.webcam(webcamElement,webcamConfig);
+        const webcam = await tf.data.webcam(webcamElement);
         while (true) {
             const img = await webcam.capture();
             const result = await net.classify(img,1 );
