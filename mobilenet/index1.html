@@ -5,7 +5,7 @@
     <!-- Load the latest version of TensorFlow.js -->
     <script src="js/tfjs.js"></script>
     <script src="js/mobilenet.js"></script>
-    <script src="js/mqttws31.min.js"></script>
+    <script src="js/mqtt.min.js"></script>
     <title>Mobilenet</title>
 </head>
 <body>
@@ -16,35 +16,37 @@
 <div id="info"></div>
 <input id="publishTopic" type="text" value="/tm/led">
 <script>
-    // Create a client instance
-    client = new Paho.MQTT.Client('wss://www.sjaiedu.com', 8083, "clientId");
-    // set callback handlers
-    client.onConnectionLost = onConnectionLost;
-    client.onMessageArrived = onMessageArrived;
-    // connect the client
-    client.connect({onSuccess: onConnect});
-
-    // called when the client connects
-    function onConnect() {
-        // Once a connection has been made, make a subscription and send a message.
-        console.log("onConnect");
-        client.subscribe("World");
-        message = new Paho.MQTT.Message("Hello");
-        message.destinationName = "World";
-        client.send(message);
+    // 将在全局初始化一个 mqtt 变量
+    console.log(mqtt)
+    // 连接选项
+    const options = {
+        connectTimeout: 40000, // 超时时间
+        // 认证信息
+        clientId: 'emqx-connect-via-websocket',
+        username: '',
+        password: '',
     }
 
-    // called when the client loses its connection
-    function onConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-            console.log("onConnectionLost:" + responseObject.errorMessage);
-        }
+    const client = mqtt.connect('wss://www.sjaiedu.com/mqtt', options)
+    client.on('connect',(e)=>{
+        console.log('连接成功!')
+    })
+    //
+    // client.on('reconnect', (error) => {
+    //     console.log('正在重连:', error)
+    // })
+
+    client.on('error', (error) => {
+        console.log('连接失败:', error)
+    })
+    // 发布消息
+    if (!client.connected) {
+        console.log('客户端未连接');
     }
 
-    // called when a message arrives
-    function onMessageArrived(message) {
-        console.log("onMessageArrived:" + message.payloadString);
-    }
+    client.publish('/tm/led', 'hello AI', (error) => {
+        console.log(error || '消息发布成功')
+    })
 </script>
 <script>
 
@@ -79,15 +81,15 @@
             const img = await webcam.capture();
             const result = await net.classify(img, 1);
             document.getElementById('console').innerText = ` prediction: ${result[0].className}\n probability: ${result[0].probability} `;
-            message = new Paho.MQTT.Message(result[0].className);
+            // message = new Paho.MQTT.Message(result[0].className);
             if (pubTopic.value !== '') {
                 // console.log(pubTopic.value);
-                message.destinationName = pubTopic.value;
-            } else {
-                message.destinationName = "/tm/led";
+                client.publish(pubTopic.value, result[0].className, (error) => {
+                    // console.log(error || '消息发布成功')
+                })
             }
 
-            client.send(message);
+            // client.send(message);
             // Dispose the tensor to release the memory.
             img.dispose();
             // Give some breathing room by waiting for the next animation frame to

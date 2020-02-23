@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./js/mqtt.min.js"></script>
+
+</head>
+<body>
+
+<script>
+    // 将在全局初始化一个 mqtt 变量
+    console.log(mqtt)
+    // 连接选项
+    const options = {
+        connectTimeout: 40000, // 超时时间
+        // 认证信息
+        clientId: 'emqx-connect-via-websocket',
+        username: '',
+        password: '',
+    }
+
+    const client = mqtt.connect('wss://www.sjaiedu.com/mqtt', options)
+    client.on('connect',(e)=>{
+        console.log('连接成功!')
+    })
+    //
+    // client.on('reconnect', (error) => {
+    //     console.log('正在重连:', error)
+    // })
+
+    client.on('error', (error) => {
+        console.log('连接失败:', error)
+    })
+    // 发布消息
+    if (!client.connected) {
+        console.log('客户端未连接');
+    }
+
+    client.publish('/tm/led', 'hello EMQ', (error) => {
+        console.log(error || '消息发布成功')
+    })
+</script>
+</body>
+</html>
