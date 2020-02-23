@@ -30,12 +30,15 @@
 
         // Create an object from Tensorflow.js data API which could capture image
         // from the web camera as Tensor.
-        let webcamConfig = {
-            facingMode:'environment'
-        }
+        // let webcamOptions = {
+        //     facingMode:'environment'
+        // }
+        // const videoElement = undefined;
+        const webcamConfig = {facingMode: 'user', resizeWidth: 100, resizeHeight: 100};
+        // const webcam = await tf.data.webcam(videoElement, webcamConfig);
         let deviceId = navigator.mediaDevices.enumerateDevices();
         console.log(deviceId);
-        const webcam = await tf.data.webcam(webcamElement);
+        const webcam = await tf.data.webcam(webcamElement,webcamConfig);
         while (true) {
             const img = await webcam.capture();
             const result = await net.classify(img,1 );
