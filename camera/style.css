@@ -9,8 +9,8 @@ body {
 
 #camera-stream {
     position: absolute;
-    width: 600px;
-    height: 600px;
+    width: 448px;
+    height: 448px;
 }
 
 #flip-btn {
