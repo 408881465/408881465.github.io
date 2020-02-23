@@ -5,6 +5,7 @@
     <!-- Load the latest version of TensorFlow.js -->
     <script src="js/tfjs.js"></script>
     <script src="js/mobilenet.js"></script>
+    <script src="js/mqttws31.min.js"></script>
     <title>Mobilenet</title>
 </head>
 <body>
@@ -13,9 +14,44 @@
 <!--<img id="img" crossorigin src="https://i.imgur.com/JlUvsxa.jpg" width="227" height="227"/>-->
 <video autoplay playsinline muted id="webcam" width="448" height="448"></video>
 <div id="info"></div>
+<input id="publishTopic" type="text" value="/tm/led">
 <script>
+    // Create a client instance
+    client = new Paho.MQTT.Client('www.sjaiedu.com', 8083, "clientId");
+    // set callback handlers
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+    // connect the client
+    client.connect({onSuccess: onConnect});
+
+    // called when the client connects
+    function onConnect() {
+        // Once a connection has been made, make a subscription and send a message.
+        console.log("onConnect");
+        client.subscribe("World");
+        message = new Paho.MQTT.Message("Hello");
+        message.destinationName = "World";
+        client.send(message);
+    }
+
+    // called when the client loses its connection
+    function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+            console.log("onConnectionLost:" + responseObject.errorMessage);
+        }
+    }
+
+    // called when a message arrives
+    function onMessageArrived(message) {
+        console.log("onMessageArrived:" + message.payloadString);
+    }
+</script>
+<script>
+
+
     let net;
     const webcamElement = document.getElementById('webcam');
+    let pubTopic = document.getElementById('publishTopic')
 
     async function app() {
         console.log('Loading mobilenet..');
@@ -38,11 +74,20 @@
         // const webcam = await tf.data.webcam(videoElement, webcamConfig);
         let deviceId = navigator.mediaDevices.enumerateDevices();
         console.log(deviceId);
-        const webcam = await tf.data.webcam(webcamElement,webcamConfig);
+        const webcam = await tf.data.webcam(webcamElement, webcamConfig);
         while (true) {
             const img = await webcam.capture();
-            const result = await net.classify(img,1 );
+            const result = await net.classify(img, 1);
             document.getElementById('console').innerText = ` prediction: ${result[0].className}\n probability: ${result[0].probability} `;
+            message = new Paho.MQTT.Message(result[0].className);
+            if (pubTopic.value !== '') {
+                // console.log(pubTopic.value);
+                message.destinationName = pubTopic.value;
+            } else {
+                message.destinationName = "/tm/led";
+            }
+
+            client.send(message);
             // Dispose the tensor to release the memory.
             img.dispose();
             // Give some breathing room by waiting for the next animation frame to
