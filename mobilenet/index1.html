@@ -15,6 +15,7 @@
 <video autoplay playsinline muted id="webcam" width="448" height="448"></video>
 <div id="info"></div>
 <input id="publishTopic" type="text" value="/tm/led">
+<div id="mqtt_info"></div>
 <script>
     // 将在全局初始化一个 mqtt 变量
     console.log(mqtt)
@@ -29,7 +30,8 @@
 
     const client = mqtt.connect('wss://www.sjaiedu.com/mqtt', options)
     client.on('connect',(e)=>{
-        console.log('连接成功!')
+        // console.log('连接成功!');
+        document.getElementById('mqtt_info').innerHTML = 'MQTT连接成功！';
     })
     //
     // client.on('reconnect', (error) => {
@@ -37,7 +39,8 @@
     // })
 
     client.on('error', (error) => {
-        console.log('连接失败:', error)
+        console.log('连接失败:', error);
+        document.getElementById('mqtt_info').innerHTML = 'MQTT连接成功！';
     })
     // 发布消息
     if (!client.connected) {
