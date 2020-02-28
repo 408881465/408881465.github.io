@@ -52,7 +52,7 @@
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
         // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput);
-        prediction.sort((a, b) => parseFloat(a.probability) - parseFloat(b.probability));
+        prediction.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
         console.log(prediction);
 
         for (let i = 0; i < maxPredictions; i++) {
