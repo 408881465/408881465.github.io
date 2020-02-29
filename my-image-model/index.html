@@ -8,7 +8,7 @@
 <div>Teachable Machine Image Model</div>
 <button type="button" onclick="init()">Start</button>
 <div id="webcam-container"></div>
-<div id="label-container"></div>
+<h1 id="label-container"  style="font-size: 80pt" ></h1>
 <script src="./tf.min.js"></script>
 <script src="./teachablemachine-image.min.js"></script>
 <script type="text/javascript">
@@ -66,6 +66,7 @@
             labelContainer.childNodes[i].innerHTML = classPrediction;
         }
     }
+
     init();
 </script>
 
